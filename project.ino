@@ -46,7 +46,7 @@ void right() //Moving Right
 }
 void left() //Moving Left
 {
-  digitalWrite(IN1, LOW);
+  digitalWrite(in1, LOW);
   digitalWrite(in2, HIGH);
   digitalWrite(in3, LOW);
   digitalWrite(in4, HIGH);
