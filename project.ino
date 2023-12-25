@@ -1,5 +1,7 @@
 #include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+/************** Macros for Pins ************/
 #define echo 3
 #define trig 4
 #define in1 5
@@ -9,8 +11,69 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 #define ena 9
 #define enb 10
 #define buzzer 11
+//////////////////////////////////////////////////
 
 uint32_t distance,time;
+
+/************ Functions for directions of Robot ************/
+
+void forward() //Moving Forward
+{
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+  analogWrite(ena, 255);
+  analogWrite(enb, 255);
+}
+void backward() //Moving Bacward
+{
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+  analogWrite(ena, 255);
+  analogWrite(enb, 255);
+}
+void right() //Moving Right
+{
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+  analogWrite(ena, 255);
+  analogWrite(enb, 255);
+}
+void left() //Moving Left
+{
+  digitalWrite(IN1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+  analogWrite(ena, 255);
+  analogWrite(enb, 255);
+}
+void stop() //Stop
+{
+  analogWrite(ena, 0);
+  analogWrite(enb, 0);
+}
+//////////////////////////////////////////////////
+void hold() //if distance less than 20 cm
+{
+  digitalWrite(buzzer, HIGH);
+  delay(1000);
+  digitalWrite(buzzer, LOW);
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+  analogWrite(ena, 0);
+  analogWrite(enb, 255); 
+  delay(700);
+}
+//////////////////////////////////////////////////
+
 void setup() {
   // put your setup code here, to run once:
 for(int i = 4;i<=11;i++)
@@ -19,18 +82,18 @@ for(int i = 4;i<=11;i++)
 }
   pinMode(echo, INPUT);
 
-  Serial.begin(9600);
-
+  Serial.begin(9600); //Start Connection with Bluetooth
+  
   lcd.init();
   lcd.backlight();
-
+  
   lcd.setCursor(0, 0);
   lcd.print("Distance = ");
   lcd.setCursor(0, 1);
   lcd.print("Mode = ");
 }
 void loop() {
-  // put your main code here, to run repeatedly:
+  
   digitalWrite(trig, LOW);
   delayMicroseconds(2);
   digitalWrite(trig, HIGH);
@@ -41,21 +104,11 @@ void loop() {
   lcd.setCursor(11, 0);
   lcd.print(distance);
   lcd.print(" cm = ");
- if(distance <= 20)
+  if(distance <= 20)
      {
       stop();
-      digitalWrite(buzzer, HIGH);
-      delay(1000);
-      digitalWrite(buzzer, LOW);
-      digitalWrite(in1, HIGH);
-      digitalWrite(in2, LOW);
-      digitalWrite(in3, LOW);
-      digitalWrite(in4, HIGH);
-      analogWrite(ena, 0);
-      analogWrite(enb, 255); 
-      delay(700);
+      hold();
       stop();
-
      }
 
   if(Serial.available() > 0)
@@ -79,24 +132,13 @@ void loop() {
      lcd.setCursor(11, 0);
      lcd.print(distance);
      lcd.print(" cm = ");
-     if(distance <= 20)
-     {
+     if(distance <= 20){
       stop();
-      digitalWrite(buzzer, HIGH);
-      delay(1000);
-      digitalWrite(buzzer, LOW);
-      digitalWrite(in1, HIGH);
-      digitalWrite(in2, LOW);
-      digitalWrite(in3, LOW);
-      digitalWrite(in4, HIGH);
-      analogWrite(ena, 0);
-      analogWrite(enb, 255); 
-      delay(700);
+      hold();
       option = 'S';
      }
     }
-    if(option == 'B')
-    {
+    else if(option == 'B'){
      backward();
      lcd.setCursor(7, 1);
      lcd.print("Backward  ");
@@ -104,23 +146,13 @@ void loop() {
      lcd.print(distance);
      lcd.print(" cm = ");
       if(distance <= 20)
-     {
+      {
       stop();
-      digitalWrite(buzzer, HIGH);
-      delay(1000);
-      digitalWrite(buzzer, LOW);
-      digitalWrite(in1, HIGH);
-      digitalWrite(in2, LOW);
-      digitalWrite(in3, LOW);
-      digitalWrite(in4, HIGH);
-      analogWrite(ena, 0);
-      analogWrite(enb, 255); 
-      delay(700);
+      hold();
       option = 'S';
-     }
+      }
     }
-    if(option == 'R')
-    {
+    else if(option == 'R'){
     right();
     lcd.setCursor(7, 1);
     lcd.print("Right    ");
@@ -130,21 +162,11 @@ void loop() {
      if(distance <= 20)
      {
       stop();
-      digitalWrite(buzzer, HIGH);
-      delay(1000);
-      digitalWrite(buzzer, LOW);
-      digitalWrite(in1, HIGH);
-      digitalWrite(in2, LOW);
-      digitalWrite(in3, LOW);
-      digitalWrite(in4, HIGH);
-      analogWrite(ena, 0);
-      analogWrite(enb, 255); 
-      delay(700);
+      hold();
       option = 'S';
      }
     }
-    if(option == 'L')
-    {
+    else if(option == 'L'){
     left();
     lcd.setCursor(7, 1);
     lcd.print("Left    ");
@@ -154,21 +176,11 @@ void loop() {
      if(distance <= 20)
      {
       stop();
-      digitalWrite(buzzer, HIGH);
-      delay(1000);
-      digitalWrite(buzzer, LOW);
-      digitalWrite(in1, HIGH);
-      digitalWrite(in2, LOW);
-      digitalWrite(in3, LOW);
-      digitalWrite(in4, HIGH);
-      analogWrite(ena, 0);
-      analogWrite(enb, 255); 
-      delay(700);
+      hold();
       option = 'S';
      }
     }
-    if(option == 'S')
-    {
+    else if(option == 'S'){
     stop();
     lcd.setCursor(7, 1);
     lcd.print("Stop    ");
@@ -177,45 +189,4 @@ void loop() {
     lcd.print(" cm = ");
     }
   }
-}
-void forward()
-{
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
-  analogWrite(ena, 255);
-  analogWrite(enb, 255);
-}
-void backward()
-{
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
-  analogWrite(ena, 255);
-  analogWrite(enb, 255);
-}
-void right()
-{
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
-  analogWrite(ena, 255);
-  analogWrite(enb, 255);
-}
-void left()
-{
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
-  analogWrite(ena, 255);
-  analogWrite(enb, 255);
-}
-void stop()
-{
-  analogWrite(ena, 0);
-  analogWrite(enb, 0);
 }
